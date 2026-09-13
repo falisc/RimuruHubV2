@@ -2562,7 +2562,8 @@ function Window:Destroy()
           if heightTween then heightTween:Cancel() end
           if wrapTween then wrapTween:Cancel() end
            if collapsed then
-               fullHeight = math.max(fullHeight or card.AbsoluteSize.Y, section.PremiumLocked and 104 or 1)
+               local measuredHeight = section.List and section.List.AbsoluteSize.Y or 0
+               fullHeight = math.max(fullHeight or 0, card.AbsoluteSize.Y, measuredHeight + 16, section.PremiumLocked and 104 or 1)
               wrap.AutomaticSize = Enum.AutomaticSize.None
               wrap.Size = UDim2.new(1, 0, 0, 32 + fullHeight)
               card.AutomaticSize = Enum.AutomaticSize.None
@@ -2585,8 +2586,10 @@ function Window:Destroy()
               card.AutomaticSize = Enum.AutomaticSize.None
               card.Size = UDim2.new(1, 0, 0, 0)
               task.defer(function()
-                  if collapsed then transitioning = false; return end
-                   local target = math.max(fullHeight or card.AbsoluteSize.Y, section.PremiumLocked and 104 or 1)
+                   RunService.RenderStepped:Wait()
+                   if collapsed then transitioning = false; return end
+                   local measuredHeight = section.List and section.List.AbsoluteSize.Y or 0
+                   local target = math.max(fullHeight or 0, card.AbsoluteSize.Y, measuredHeight + 16, section.PremiumLocked and 104 or 1)
                   fullHeight = target
                   heightTween = TweenService:Create(card, TweenInfo.new(.18, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {Size = UDim2.new(1, 0, 0, target)})
                   wrapTween = TweenService:Create(wrap, TweenInfo.new(.18, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {Size = UDim2.new(1, 0, 0, 32 + target)})
@@ -2691,6 +2694,13 @@ function Window:Destroy()
       self:_applyPremiumTitle()
       if window and PremiumState[window] == true then return self end
       self.PremiumLocked = true
+      for _, widget in ipairs(self.Widgets or {}) do
+          if widget and not widget.PremiumLocked then
+              if type(widget.Value) == "boolean" and widget.Set then pcall(widget.Set, false, true)
+              elseif type(widget.Value) == "table" and widget.Set then pcall(widget.Set, {}, true) end
+              widget.PremiumLocked = true
+          end
+      end
       local card = self.Card
       if window and window.PopupState and window.PopupState.Anchor and card:IsAncestorOf(window.PopupState.Anchor) then window:ClosePopup() end
       local veil = New("TextButton", {Active = true, AutoButtonColor = false, BackgroundColor3 = Theme.Background, BackgroundTransparency = .08, BorderSizePixel = 0, ClipsDescendants = true, Position = UDim2.fromOffset(0, 32), Selectable = false, Size = UDim2.new(1, 0, 0, 0), Text = "", ZIndex = 100, RimuruThemeRole = "PremiumOverlay"}, self.Wrap)
