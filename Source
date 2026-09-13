@@ -1809,6 +1809,15 @@
       local brandDivider = New("Frame", {BackgroundColor3 = Theme.Divider, BorderSizePixel = 0, Position = UDim2.fromOffset(106, 8), Size = UDim2.fromOffset(1, 20)}, header)
        local detectedTitle = tostring(config.GameTitle or window.GameName)
        local brandSub = Label(header, detectedTitle .. " - " .. FormatEntitlementLabel(window.Entitlement), 10, Theme.Text, Fonts.Bold); brandSub.Position = UDim2.fromOffset(118, 8); brandSub.Size = UDim2.new(1, -290, 0, 20); brandSub.TextTruncate = Enum.TextTruncate.AtEnd
+       if window.Entitlement and window.Entitlement.Premium == true then
+           local entitlementGradient = New("UIGradient", {Color = ColorSequence.new({ColorSequenceKeypoint.new(0, Theme.Accent), ColorSequenceKeypoint.new(.28, Theme.Text), ColorSequenceKeypoint.new(.52, Color3.fromRGB(113, 214, 255)), ColorSequenceKeypoint.new(.76, Theme.Accent), ColorSequenceKeypoint.new(1, Theme.Text)}), Offset = Vector2.new(-1, 0), Rotation = 0}, brandSub)
+           local entitlementPhase = 0
+           window.EntitlementGradientConnection = RunService.RenderStepped:Connect(function(delta)
+               if not brandSub.Parent then window.EntitlementGradientConnection:Disconnect(); window.EntitlementGradientConnection = nil; return end
+               entitlementPhase = (entitlementPhase + delta * .34) % 2
+               entitlementGradient.Offset = Vector2.new(entitlementPhase - 1, 0)
+           end)
+       end
        window.EntitlementLabel = brandSub
       local discord = Label(header, config.Discord or "discord.gg/rimuruhub", 9, Theme.Accent, Fonts.Bold); discord.AnchorPoint = Vector2.new(1, 0); discord.Position = UDim2.new(1, -78, 0, 8); discord.Size = UDim2.fromOffset(92, 20); discord.TextXAlignment = Enum.TextXAlignment.Left
       local discordIcon = MakeIcon(header, "discord", nil, 14, Theme.Accent); discordIcon.Position = UDim2.new(1, -202, 0, 11); discordIcon.ZIndex = 8
