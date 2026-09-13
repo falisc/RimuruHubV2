@@ -1711,7 +1711,7 @@
       local detected = explicitLifetime or type(seconds) == "number" or type(runtimePremium) == "boolean"
       seconds = type(seconds) == "number" and seconds or nil
       local lifetime = explicitLifetime or (seconds == math.huge or seconds == -1) or (runtimePremium == true and seconds == nil)
-      local premium = lifetime or runtimePremium == true or (seconds ~= nil and seconds > 8 * 60 * 60)
+      local premium = lifetime or (seconds == nil and runtimePremium == true) or (seconds ~= nil and seconds > 8 * 60 * 60)
       return {Detected = detected, Premium = premium, SecondsLeft = seconds, Lifetime = lifetime}
   end
   local function FormatEntitlementTime(seconds, lifetime)
