@@ -1362,6 +1362,9 @@
               elseif role == "SectionCard" then
                   object.BackgroundColor3 = Theme.Card
                   object.BackgroundTransparency = 0
+               elseif role == "SubsectionHeader" then
+                   object.BackgroundColor3 = Theme.Surface
+                   object.BackgroundTransparency = Theme.SurfaceTransparency or 0
               elseif role == "PremiumOverlay" then
                   object.BackgroundColor3 = Theme.Background
                   object.BackgroundTransparency = .08
@@ -2754,6 +2757,42 @@ function Window:Destroy()
       end)
       return self
   end
+     function Section:CreateSubsection(config)
+       config = type(config) == "string" and {Name = config} or config or {}
+       if self.__RimuruSubsection then return self.__RimuruSubsection end
+       if not self.List or type(self.Widgets) ~= "table" or #self.Widgets < 2 then return nil end
+       self.__RimuruSubsection = true
+       local host = New("Frame", {BackgroundTransparency = 1, BorderSizePixel = 0, LayoutOrder = 1, Size = UDim2.new(1, 0, 0, 28), RimuruThemeRole = "SubsectionHost"}, self.List)
+       local header = New("TextButton", {Active = true, AutoButtonColor = false, BackgroundColor3 = Theme.Surface, BackgroundTransparency = Theme.SurfaceTransparency or 0, BorderSizePixel = 0, ClipsDescendants = true, Size = UDim2.new(1, 0, 0, 28), Text = "", ZIndex = 4, RimuruThemeRole = "SubsectionHeader"}, host)
+       Corner(header, 6); Outline(header, Theme.Divider)
+       local label = Label(header, tostring(config.Name or "Subsection"), 10, Theme.Text, Fonts.Bold)
+       label.Position = UDim2.fromOffset(10, 0); label.Size = UDim2.new(1, -34, 1, 0); label.ZIndex = 5; label.TextTruncate = Enum.TextTruncate.AtEnd
+       local arrow = MakeChevron(header, Theme.Muted); arrow.Position = UDim2.new(1, -17, .5, 0); arrow.ZIndex = 5
+       local expanded = config.Expanded == true
+       local function setExpanded(value)
+           expanded = value == true
+           for index = 2, #self.Widgets do
+               local widget = self.Widgets[index]
+               if widget and widget.Root then widget.Root.Visible = expanded end
+               local divider = self.Dividers and self.Dividers[index - 1]
+               if divider then divider.Visible = expanded end
+           end
+           arrow.Rotation = expanded and 0 or 180
+           task.defer(function() if self.Card and self.Card.Parent and self.Card.Visible then self.Card.AutomaticSize = Enum.AutomaticSize.Y end end)
+       end
+       for index = 2, #self.Widgets do
+           local widget = self.Widgets[index]
+           if widget and widget.Root and widget.Root.Parent == self.List then widget.Root.LayoutOrder = index * 2 end
+           local divider = self.Dividers and self.Dividers[index - 1]
+           if divider and divider.Parent == self.List then divider.LayoutOrder = index * 2 - 1 end
+       end
+       header.MouseEnter:Connect(function() header.BackgroundColor3 = Theme.Hover end)
+       header.MouseLeave:Connect(function() header.BackgroundColor3 = Theme.Surface end)
+       header.MouseButton1Click:Connect(function() setExpanded(not expanded) end)
+       setExpanded(expanded)
+       self.Subsection = {Root = host, Header = header, Arrow = arrow, SetExpanded = setExpanded}
+       return self.Subsection
+   end
   function Section:CreateLabel(name) local w = self:_widget(name, 25); w.Label.TextColor3 = Theme.Muted; return w end
   function Section:CreateButton(config)
       config = type(config) == "string" and {Name = config} or config or {}; local w = self:_widget(config.Name or "Button"); local buttonWidth = math.max(114, tonumber(config.Width) or 114); local b = Action(w.Root, config.Icon and "" or config.Text or "Click", 22); b.Position = UDim2.new(1, -buttonWidth, 0, 5); b.Size = UDim2.fromOffset(buttonWidth, 22); w.Label.Size = UDim2.new(1, -buttonWidth - 14, 1, 0)
