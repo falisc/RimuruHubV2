@@ -1703,13 +1703,15 @@
       if value == nil and _G then value = _G[name] end
       return value
   end
-  local function ResolveRuntimeEntitlement()
-      local seconds = RuntimeValue("LRM_SecondsLeft")
-      local runtimePremium = RuntimeValue("LRM_IsUserPremium")
-      local detected = type(seconds) == "number" or type(runtimePremium) == "boolean"
+  local function ResolveRuntimeEntitlement(config)
+      local supplied = type(config) == "table" and type(config.Entitlement) == "table" and config.Entitlement or nil
+      local seconds = supplied and supplied.SecondsLeft or RuntimeValue("LRM_SecondsLeft")
+      local runtimePremium = supplied and supplied.Premium or RuntimeValue("LRM_IsUserPremium")
+      local explicitLifetime = supplied and supplied.Lifetime == true
+      local detected = explicitLifetime or type(seconds) == "number" or type(runtimePremium) == "boolean"
       seconds = type(seconds) == "number" and seconds or nil
-      local lifetime = detected and seconds == math.huge
-      local premium = lifetime or (seconds ~= nil and seconds > 8 * 60 * 60)
+      local lifetime = explicitLifetime or (seconds == math.huge or seconds == -1) or (runtimePremium == true and seconds == nil)
+      local premium = lifetime or runtimePremium == true or (seconds ~= nil and seconds > 8 * 60 * 60)
       return {Detected = detected, Premium = premium, SecondsLeft = seconds, Lifetime = lifetime}
   end
   local function FormatEntitlementTime(seconds, lifetime)
@@ -1746,7 +1748,7 @@
     local requestedTheme = tostring(config.Theme or "Rimuru Hub")
     local window = setmetatable({Gui = gui, Tabs = {}, Config = config, GameName = DetectGameName(), ThemeName = ThemePalettes[requestedTheme] and requestedTheme or "Rimuru Hub", ConfigFolder = tostring(config.ConfigFolder or ""), ConfigName = tostring(config.ConfigName or ""), ConfigAutoSave = config.AutoSave == true, ConfigNames = {}, LayoutMode = tostring(config.Layout or "stacked"), FloatingIslandEnabled = false, Visible = true, Keybinds = {}, KeybindConnections = {}, SideMouseDown = {Mouse4 = sideMouseDown("Mouse4"), Mouse5 = sideMouseDown("Mouse5")}}, Window)
       window:SetTheme(window.ThemeName)
-      window.Entitlement = ResolveRuntimeEntitlement()
+      window.Entitlement = ResolveRuntimeEntitlement(config)
       PremiumState[window] = window.Entitlement.Premium == true
       table.insert(self.Windows, window)
       EnsureFilesystemFolder(window:_configFolderPath())
