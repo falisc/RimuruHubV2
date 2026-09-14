@@ -667,7 +667,9 @@
       end
       local screensaver = self.Atmosphere.Screensaver
       if screensaver then
-          screensaver.Visible = active and self.ScreensaverEnabled == true
+          -- The screensaver is an independent surface and must survive menu
+          -- minimize/UI-toggle transitions.
+          screensaver.Visible = self.ScreensaverEnabled == true
       end
   end
 
@@ -3018,7 +3020,10 @@ end
         local mobileSlider = UIS.TouchEnabled and not UIS.KeyboardEnabled
         local track = New("TextButton", {Active = mobileSlider, AutoButtonColor = false, BackgroundColor3 = Theme.Surface, BorderSizePixel = 0, Position = UDim2.fromOffset(0, 30), Size = UDim2.new(1, 0, 0, 10), Text = ""}, w.Root); Corner(track, 5); Outline(track, Theme.Divider); local fill = New("Frame", {Active = false, BackgroundColor3 = Theme.Accent, BorderSizePixel = 0, Size = UDim2.new(0, 0, 1, 0)}, track); Corner(fill, 5)
       local function formatValue(number)
-          if step < 1 then return string.format("%.1f", number):gsub("%.0$", "") end
+          if step < 1 then
+              -- Keep hundredths such as 0.08 visible instead of rounding them to 0.1.
+              return string.format("%.2f", number):gsub("0+$", ""):gsub("%.$", "")
+          end
           return string.format("%.2f", number):gsub("%.00$", "")
       end
        local function set(nextValue, silent)
