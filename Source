@@ -1786,7 +1786,7 @@
       end)
       local brandIcon = MakeIcon(header, config.BrandIcon or "logo", nil, 16, false); brandIcon.Position = UDim2.fromOffset(82, 10); brandIcon.ZIndex = 5
       local brandDivider = New("Frame", {BackgroundColor3 = Theme.Divider, BorderSizePixel = 0, Position = UDim2.fromOffset(106, 8), Size = UDim2.fromOffset(1, 20)}, header)
-       local brandSub = Label(header, "Game", 10, Theme.Text, Fonts.Bold); brandSub.Position = UDim2.fromOffset(118, 8); brandSub.Size = UDim2.new(1, -290, 0, 20); brandSub.TextTruncate = Enum.TextTruncate.AtEnd
+       local brandSub = Label(header, "Violence District", 10, Theme.Text, Fonts.Bold); brandSub.Position = UDim2.fromOffset(118, 8); brandSub.Size = UDim2.new(1, -290, 0, 20); brandSub.TextTruncate = Enum.TextTruncate.AtEnd
        window.EntitlementLabel = brandSub
       local discord = Label(header, config.Discord or "discord.gg/rimuruhub", 9, Theme.Accent, Fonts.Bold); discord.AnchorPoint = Vector2.new(1, 0); discord.Position = UDim2.new(1, -78, 0, 8); discord.Size = UDim2.fromOffset(92, 20); discord.TextXAlignment = Enum.TextXAlignment.Left
       local discordIcon = MakeIcon(header, "discord", nil, 14, Theme.Accent); discordIcon.Position = UDim2.new(1, -202, 0, 11); discordIcon.ZIndex = 8
