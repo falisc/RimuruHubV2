@@ -116,9 +116,9 @@
   local LynxFontFamily = "rbxasset://fonts/families/GothamSSm.json"
   local RimuruHubFont = Font.new(LynxFontFamily, Enum.FontWeight.Bold, Enum.FontStyle.Normal)
   local Fonts = {
-      Regular = RimuruHubFont,
+      Regular = Font.new(LynxFontFamily, Enum.FontWeight.Medium, Enum.FontStyle.Normal),
       Bold = RimuruHubFont,
-      Heading = RimuruHubFont,
+      Heading = Font.new(LynxFontFamily, Enum.FontWeight.SemiBold, Enum.FontStyle.Normal),
   }
 
   local LanguageTables = {
